@@ -2,11 +2,11 @@
 
 import uuid
 import time
-import random
 import sys
 import signal
 
 from kombu import Connection, Producer, Exchange, Queue
+import numpy
 
 def sigint_handler(signal, frame):
     print('Exiting...')
@@ -19,24 +19,24 @@ piid = 'pc.' + str(uuid.uuid1().node)
 
 print("Starting with id: " + piid)
 
-exch = Exchange('raspi-live', type='direct')
+exch = Exchange('raspi.live', type='direct')
 
 loop = True
 
 with Connection('amqp://guest:guest@SKRADAK') as conn:
     channel = conn.channel()
-    producer = Producer(channel)
+    b_exch = exch(channel)
+    producer = Producer(channel, exchange=b_exch, routing_key=piid)
 
     while loop:
+        ranums = numpy.random.randint(-2**15, 2**15-1, size=(3, 800))
         producer.publish(
             {
-                'x': random.randrange(-2**15, 2**15-1),
-                'y': random.randrange(-2**15, 2**15-1),
-                'z': random.randrange(-2**15, 2**15-1),
+                'x': ranums[0,:].tolist(),
+                'y': ranums[1,:].tolist(),
+                'z': ranums[2,:].tolist(),
             },
             retry=True,
-            exchange=exch,
-            routing_key=piid,
         )
         time.sleep(1)
 
