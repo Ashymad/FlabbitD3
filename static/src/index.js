@@ -6,23 +6,44 @@ import style from './index.css';
 
 var beAPI = 'http://127.0.0.1:8888/api/';
 var client;
+var subscription;
 
 request
     .get(beAPI + 'stomp')
-    .end((err, res) => {
-	if (err) {
-	    console.log(err)
-	} else {
-	    client = Stomp.client(res.body.url)
-	    client.connect(res.body.login, res.body.passcode,
-		() => {
-		    console.log("Connected via STOMP!")
-		},
-		(error) => {
-		    console.log(error)
-		})
-	}
+    .then((res) => {
+	client = Stomp.client(res.body.url)
+	client.connect(res.body.login, res.body.passcode,
+	    on_connect,
+	    (error) => {
+		console.log(error)
+	    })
     })
+    .catch((err) => {
+	console.log(err)
+    })
+
+var on_connect = function() {
+    request
+	.put(beAPI + 'binding/1234')
+	.send({'routing_key': 'pc.11373331246'})
+	.then((res) => {
+	    subscription = client
+		.subscribe("/amq/queue/" + res.body.queue_name,
+		    on_message)
+
+	})
+	.catch((err) => {
+	    console.log(err)
+	})
+}
+
+var on_message = function(message) {
+    if (message.body) {
+    } else {
+	console.log("got empty message");
+    }
+}
+
 
 var limit = 60 * 1,
     duration = 750,

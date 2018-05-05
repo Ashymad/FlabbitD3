@@ -29,7 +29,7 @@ with Connection('amqp://guest:guest@SKRADAK') as conn:
     producer = Producer(channel, exchange=b_exch, routing_key=piid)
 
     while loop:
-        ranums = numpy.random.randint(-2**15, 2**15-1, size=(3, 800))
+        ranums = 4*(numpy.random.rand(3, 3)-0.5)
         producer.publish(
             {
                 'x': ranums[0,:].tolist(),
