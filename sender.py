@@ -4,9 +4,9 @@ import uuid
 import time
 import sys
 import signal
+import random
 
 from kombu import Connection, Producer, Exchange, Queue
-import numpy
 
 def sigint_handler(signal, frame):
     print('Exiting...')
@@ -29,14 +29,13 @@ with Connection('amqp://guest:guest@SKRADAK') as conn:
     producer = Producer(channel, exchange=b_exch, routing_key=piid)
 
     while loop:
-        ranums = 4*(numpy.random.rand(3, 3)-0.5)
         producer.publish(
             {
-                'x': ranums[0,:].tolist(),
-                'y': ranums[1,:].tolist(),
-                'z': ranums[2,:].tolist(),
+                'x': 4*(random.random()-0.5),
+                'y': 4*(random.random()-0.5),
+                'z': 4*(random.random()-0.5),
             },
             retry=True,
         )
-        time.sleep(1)
+        time.sleep(0.05)
 

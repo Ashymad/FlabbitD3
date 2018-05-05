@@ -24,7 +24,7 @@ request
 
 var on_connect = function() {
     request
-	.put(beAPI + 'binding/1234')
+	.put(beAPI + 'binding/' + Math.floor(Math.random()*1000000000))
 	.send({'routing_key': 'pc.11373331246'})
 	.then((res) => {
 	    subscription = client
@@ -39,6 +39,7 @@ var on_connect = function() {
 
 var on_message = function(message) {
     if (message.body) {
+	tick(JSON.parse(message.body))
     } else {
 	console.log("got empty message");
     }
@@ -46,28 +47,28 @@ var on_message = function(message) {
 
 
 var limit = 60 * 1,
-    duration = 750,
+    duration = 50,
     now = new Date(Date.now() - duration)
 
 var width = 800,
     height = 300
 
 var groups = {
-    current: {
+    x: {
 	value: 0,
 	color: 'orange',
 	data: d3.range(limit).map(function() {
 	    return 0
 	})
     },
-    target: {
+    y: {
 	value: 0,
 	color: 'green',
 	data: d3.range(limit).map(function() {
 	    return 0
 	})
     },
-    output: {
+    z: {
 	value: 0,
 	color: 'grey',
 	data: d3.range(limit).map(function() {
@@ -81,7 +82,7 @@ var x = d3.scaleTime()
     .range([0, width])
 
 var y = d3.scaleLinear()
-    .domain([0, 100])
+    .domain([-2, 2])
     .range([height, 0])
 
 var line = d3.line()
@@ -112,32 +113,32 @@ for (var name in groups) {
 	.style('stroke', group.color)
 }
 
-function tick() {
+function tick(data) {
     now = new Date()
 
     // Add new values
     for (var name in groups) {
 	var group = groups[name]
-	//group.data.push(group.value) // Real values arrive at irregular intervals
-	group.data.push(Math.random() * 100)
+	group.data.push(data[name]) // Real values arrive at irregular intervals
 	group.path.attr('d', line)
     }
 
     // Shift domain
     x.domain([now - (limit - 2) * duration, now - duration])
+    axis.call(x.axis)
 
     var t = d3.transition()
 	.duration(duration)
 	.ease(d3.easeLinear)
 
     // Slide x-axis left
-    axis.transition(t).call(x.axis);
+    // axis.transition(t).call(x.axis);
 
     // Slide paths left
-    paths.attr('transform', null)
-	.transition(t)
-	.attr('transform', 'translate(' + x(now - (limit - 1) * duration) + ')')
-	.on('end', tick)
+    //    paths.attr('transform', null)
+    //	.transition(t)
+    //	.attr('transform', 'translate(' + x(now - (limit - 1) * duration) + ')')
+    //	.on('end', tick)
 
     // Remove oldest data point from each group
     for (var name in groups) {
@@ -146,4 +147,4 @@ function tick() {
     }
 }
 
-tick()
+//tick()
