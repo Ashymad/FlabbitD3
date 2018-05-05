@@ -6,9 +6,11 @@ import uuid
 
 app = Flask(__name__)
 
-rmq_adr = '127.0.0.1'
+rmq_adr = '10.0.0.118'
+rmq_credentials = pika.PlainCredentials('pi', 'raspberry')
 rmq_exchange = 'raspi.live'
-rmq_par = pika.ConnectionParameters(host=rmq_adr)
+rmq_par = pika.ConnectionParameters(host=rmq_adr,
+                                    credentials=rmq_credentials)
 
 @app.route('/api/binding/<int:binding_id>', methods=['PUT'])
 def put_binding(binding_id):

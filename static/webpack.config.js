@@ -23,5 +23,8 @@ module.exports = {
 	    title: 'D3 and RabbitMQ',
 	    template: './src/index.html'
 	})
-    ]
+    ],
+    devServer: {
+	host: '0.0.0.0'
+    }
 }

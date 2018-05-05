@@ -7,10 +7,12 @@ body {
 }
 
 .graph .axis .tick line {
+    visibility: hidden;
     stroke: black;
 }
 
 .graph .axis .tick text {
+    visibility: hidden;
     fill: black;
     font-size: 0.7em;
 }

@@ -4,7 +4,7 @@ import * as request from 'superagent';
 
 import style from './index.css';
 
-var beAPI = 'http://127.0.0.1:8888/api/';
+var beAPI = window.location.protocol + "//" + window.location.host + "/api/"
 var client;
 var subscription;
 
@@ -12,6 +12,7 @@ request
     .get(beAPI + 'stomp')
     .then((res) => {
 	client = Stomp.client(res.body.url)
+	client.debug = null
 	client.connect(res.body.login, res.body.passcode,
 	    on_connect,
 	    (error) => {
@@ -30,6 +31,8 @@ var on_connect = function() {
 	    subscription = client
 		.subscribe("/amq/queue/" + res.body.queue_name,
 		    on_message)
+	    document.getElementById("title")
+		.textContent = "Reading from: " + res.body.queue_name;
 
 	})
 	.catch((err) => {
@@ -46,12 +49,12 @@ var on_message = function(message) {
 }
 
 
-var limit = 60 * 1,
+var limit = 60 * 5,
     duration = 50,
     now = new Date(Date.now() - duration)
 
-var width = 800,
-    height = 300
+var width = window.innerWidth - 10,
+    height = window.innerHeight/2
 
 var groups = {
     x: {
@@ -83,7 +86,7 @@ var x = d3.scaleTime()
 
 var y = d3.scaleLinear()
     .domain([-2, 2])
-    .range([height, 0])
+    .range([0, height])
 
 var line = d3.line()
     .x(function(d, i) {
@@ -96,11 +99,11 @@ var line = d3.line()
 var svg = d3.select('.graph').append('svg')
     .attr('class', 'chart')
     .attr('width', width)
-    .attr('height', height + 50)
+    .attr('height', height)
 
 var axis = svg.append('g')
     .attr('class', 'x axis')
-    .attr('transform', 'translate(0,' + height + ')')
+    .attr('transform', 'translate(0,' + height/2 + ')')
     .call(x.axis = d3.axisBottom(x))
 
 var paths = svg.append('g')
@@ -125,20 +128,7 @@ function tick(data) {
 
     // Shift domain
     x.domain([now - (limit - 2) * duration, now - duration])
-    axis.call(x.axis)
-
-    var t = d3.transition()
-	.duration(duration)
-	.ease(d3.easeLinear)
-
-    // Slide x-axis left
-    // axis.transition(t).call(x.axis);
-
-    // Slide paths left
-    //    paths.attr('transform', null)
-    //	.transition(t)
-    //	.attr('transform', 'translate(' + x(now - (limit - 1) * duration) + ')')
-    //	.on('end', tick)
+    //axis.call(x.axis)
 
     // Remove oldest data point from each group
     for (var name in groups) {
