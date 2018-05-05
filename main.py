@@ -14,10 +14,6 @@ channel.exchange_declare(exchange=rmq_exchange,
                          exchange_type='direct',
                          durable=True)
 
-@app.route('/')
-def hello_world():
-    return 'Hello, World'
-
 @app.route('/api/binding/<int:binding_id>', methods=['PUT'])
 def put_binding(binding_id):
     if not request.json:

@@ -1,5 +1,28 @@
 import * as d3 from 'd3';
+import * as Stomp from '@stomp/stompjs';
+import * as request from 'superagent';
+
 import style from './index.css';
+
+var beAPI = 'http://127.0.0.1:8888/api/';
+var client;
+
+request
+    .get(beAPI + 'stomp')
+    .end((err, res) => {
+	if (err) {
+	    console.log(err)
+	} else {
+	    client = Stomp.client(res.body.url)
+	    client.connect(res.body.login, res.body.passcode,
+		() => {
+		    console.log("Connected via STOMP!")
+		},
+		(error) => {
+		    console.log(error)
+		})
+	}
+    })
 
 var limit = 60 * 1,
     duration = 750,
@@ -38,7 +61,7 @@ var x = d3.scaleTime()
 
 var y = d3.scaleLinear()
     .domain([0, 100])
-    .range([height, 50])
+    .range([height, 0])
 
 var line = d3.line()
     .x(function(d, i) {
@@ -75,7 +98,7 @@ function tick() {
     for (var name in groups) {
 	var group = groups[name]
 	//group.data.push(group.value) // Real values arrive at irregular intervals
-	group.data.push(20 + Math.random() * 100)
+	group.data.push(Math.random() * 100)
 	group.path.attr('d', line)
     }
 
