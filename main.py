@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, abort
 import pika
 import uuid
 
@@ -11,6 +11,7 @@ rmq_credentials = pika.PlainCredentials('pi', 'raspberry')
 rmq_exchange = 'raspi.live'
 rmq_par = pika.ConnectionParameters(host=rmq_adr,
                                     credentials=rmq_credentials)
+
 
 @app.route('/api/binding/<int:binding_id>', methods=['PUT'])
 def put_binding(binding_id):
@@ -25,9 +26,9 @@ def put_binding(binding_id):
                              exchange_type='direct',
                              durable=True)
     queue_name = "gen_" + str(uuid.uuid4())
-    result = channel.queue_declare(queue_name,
-                                   auto_delete=True,
-                                   arguments={'x-expires': 1000*60*2})
+    channel.queue_declare(queue_name,
+                          auto_delete=True,
+                          arguments={'x-expires': 1000*60*2})
     channel.queue_bind(exchange=rmq_exchange,
                        queue=queue_name,
                        routing_key=request.json['routing_key'])
@@ -36,6 +37,7 @@ def put_binding(binding_id):
         'queue_name': queue_name,
     })
 
+
 @app.route('/api/stomp')
 def stomp_parameters():
     return jsonify({
@@ -43,6 +45,7 @@ def stomp_parameters():
         'passcode': 'only',
         'url': 'ws://' + rmq_adr + ':15674/ws',
     })
+
 
 if __name__ == '__main__':
     app.run(debug=True)

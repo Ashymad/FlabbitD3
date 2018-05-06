@@ -2,16 +2,17 @@
 
 import uuid
 import time
-import sys
 import signal
 import random
 
-from kombu import Connection, Producer, Exchange, Queue
+from kombu import Connection, Producer, Exchange
+
 
 def sigint_handler(signal, frame):
     print('Exiting...')
     global loop
     loop = False
+
 
 signal.signal(signal.SIGINT, sigint_handler)
 
