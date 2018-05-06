@@ -4,12 +4,12 @@ import * as request from 'superagent';
 
 import style from './index.css';
 
-var beAPI = window.location.protocol + "//" + window.location.host + "/api/"
+var beAPI = `${window.location.protocol}//${window.location.host}/api/`
 var client;
 var subscription;
 
 request
-    .get(beAPI + 'stomp')
+    .get(`${beAPI}stomp`)
     .then((res) => {
 	client = Stomp.client(res.body.url)
 	client.debug = null
@@ -23,16 +23,16 @@ request
 	console.log(err)
     })
 
-var on_connect = function() {
+function on_connect() {
     request
-	.put(beAPI + 'binding/' + Math.floor(Math.random()*1000000000))
+	.put(`${beAPI}binding/${Math.floor(Math.random()*1000000000)}`)
 	.send({'routing_key': 'pc.11373331246'})
 	.then((res) => {
 	    subscription = client
-		.subscribe("/amq/queue/" + res.body.queue_name,
+		.subscribe(`/amq/queue/${res.body.queue_name}`,
 		    on_message)
 	    document.getElementById("title")
-		.textContent = "Reading from: " + res.body.queue_name;
+		.textContent = `Reading from: ${res.body.queue_name}`;
 
 	})
 	.catch((err) => {
@@ -40,7 +40,7 @@ var on_connect = function() {
 	})
 }
 
-var on_message = function(message) {
+function on_message(message) {
     if (message.body) {
 	tick(JSON.parse(message.body))
     } else {
@@ -49,9 +49,9 @@ var on_message = function(message) {
 }
 
 
-var limit = 60 * 5,
-    duration = 50,
-    now = new Date(Date.now() - duration)
+const limit = 60 * 5,
+    duration = 50
+var now = new Date(Date.now() - duration)
 
 var width = window.innerWidth - 10,
     height = window.innerHeight/2
@@ -103,16 +103,16 @@ var svg = d3.select('.graph').append('svg')
 
 var axis = svg.append('g')
     .attr('class', 'x axis')
-    .attr('transform', 'translate(0,' + height/2 + ')')
+    .attr('transform', `translate(0,${height/2})`)
     .call(x.axis = d3.axisBottom(x))
 
 var paths = svg.append('g')
 
-for (var name in groups) {
-    var group = groups[name]
+for (let name in groups) {
+    let group = groups[name]
     group.path = paths.append('path')
 	.data([group.data])
-	.attr('class', name + ' group')
+	.attr('class', `${name} group`)
 	.style('stroke', group.color)
 }
 
@@ -121,7 +121,7 @@ function tick(data) {
 
     // Add new values
     for (var name in groups) {
-	var group = groups[name]
+	let group = groups[name]
 	group.data.push(data[name]) // Real values arrive at irregular intervals
 	group.path.attr('d', line)
     }
@@ -131,10 +131,8 @@ function tick(data) {
     //axis.call(x.axis)
 
     // Remove oldest data point from each group
-    for (var name in groups) {
+    for (let name in groups) {
 	var group = groups[name]
 	group.data.shift()
     }
 }
-
-//tick()
