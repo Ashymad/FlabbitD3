@@ -11,8 +11,7 @@
    "license": "Apache-2.0",
    "dependencies": {
       "@stomp/stompjs": "^4.0.3",
-      "d3": "^5.4.0",
-      "superagent": "^3.8.3"
+      "d3": "^5.4.0"
    },
    "devDependencies": {
       "babel-core": "^6.26.3",

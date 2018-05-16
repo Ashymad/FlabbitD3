@@ -1,6 +1,5 @@
 import * as d3 from 'd3';
 import * as Stomp from '@stomp/stompjs';
-import * as request from 'superagent';
 
 import style from './index.css';
 
@@ -8,12 +7,11 @@ var beAPI = `${window.location.protocol}//${window.location.host}/api/`
 var client;
 var subscription;
 
-request
-    .get(`${beAPI}stomp`)
+d3.json(`${beAPI}stomp`)
     .then((res) => {
-	client = Stomp.client(res.body.url)
+	client = Stomp.client(res.url)
 	client.debug = null
-	client.connect(res.body.login, res.body.passcode,
+	client.connect(res.login, res.passcode,
 	    on_connect,
 	    (error) => {
 		console.log(error)
@@ -24,15 +22,16 @@ request
     })
 
 function on_connect() {
-    request
-	.put(`${beAPI}binding/${Math.floor(Math.random()*1000000000)}`)
-	.send({'routing_key': 'pc.11373331246'})
+    d3.json(`${beAPI}binding/${Math.floor(Math.random()*1000000000)}`, {
+	'method': 'PUT',
+	'body': JSON.stringify({'routing_key': 'pc.11373331246'}),
+	'headers': {'content-type': 'application/json'}})
 	.then((res) => {
 	    subscription = client
-		.subscribe(`/amq/queue/${res.body.queue_name}`,
+		.subscribe(`/amq/queue/${res.queue_name}`,
 		    on_message)
 	    document.getElementById("title")
-		.textContent = `Reading from: ${res.body.queue_name}`;
+		.textContent = `Reading from: ${res.queue_name}`;
 
 	})
 	.catch((err) => {
