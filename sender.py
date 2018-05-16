@@ -24,7 +24,7 @@ exch = Exchange('raspi.live', type='direct')
 
 loop = True
 
-with Connection('amqp://guest:guest@SKRADAK') as conn:
+with Connection('amqp://guest:guest@127.0.0.1') as conn:
     channel = conn.channel()
     b_exch = exch(channel)
     producer = Producer(channel, exchange=b_exch, routing_key=piid)
