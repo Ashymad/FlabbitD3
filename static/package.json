@@ -11,7 +11,8 @@
    "license": "Apache-2.0",
    "dependencies": {
       "@stomp/stompjs": "^4.0.3",
-      "d3": "^5.4.0"
+      "d3": "^5.4.0",
+      "d3-simple-slider": "^0.2.1"
    },
    "devDependencies": {
       "babel-core": "^6.26.3",

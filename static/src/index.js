@@ -1,9 +1,10 @@
 import * as d3 from 'd3';
+import * as d3s from 'd3-simple-slider';
 import * as Stomp from '@stomp/stompjs';
 
 import style from './index.css';
 
-var beAPI = `${window.location.protocol}//${window.location.host}/api/`
+const beAPI = `${window.location.protocol}//${window.location.host}/api/`
 var client;
 var subscription;
 
@@ -24,7 +25,7 @@ d3.json(`${beAPI}stomp`)
 function on_connect() {
     d3.json(`${beAPI}binding/${Math.floor(Math.random()*1000000000)}`, {
 	'method': 'PUT',
-	'body': JSON.stringify({'routing_key': 'pc.11373331246'}),
+	'body': JSON.stringify({'routing_key': 'pc.251756432899072'}),
 	'headers': {'content-type': 'application/json'}})
 	.then((res) => {
 	    subscription = client
@@ -47,13 +48,14 @@ function on_message(message) {
     }
 }
 
-
 const limit = 60 * 5,
     duration = 50
 var now = new Date(Date.now() - duration)
 
-var width = window.innerWidth - 10,
-    height = window.innerHeight/2
+var width = window.innerWidth - 20,
+    height = window.innerHeight - 50
+
+const domain = 2
 
 var groups = {
     x: {
@@ -84,7 +86,7 @@ var x = d3.scaleTime()
     .range([0, width])
 
 var y = d3.scaleLinear()
-    .domain([-2, 2])
+    .domain([-domain, domain])
     .range([0, height])
 
 var line = d3.line()
@@ -135,3 +137,22 @@ function tick(data) {
 	group.data.shift()
     }
 }
+
+var slider = d3s.sliderHorizontal()
+    .min(0.1)
+    .max(2)
+    .step(0.1)
+    .default(domain)
+    .width(width/2)
+    .displayValue(false)
+    .on('onchange', val => {
+	y.domain([-val, val])
+    });
+
+d3.select("#slider").append("svg")
+    .attr("width", width)
+    .attr("height", 100)
+    .append("g")
+    .attr("transform", "translate(30,30)")
+    .call(slider);
+
