@@ -3,14 +3,24 @@ import Stomp from '@stomp/stompjs';
 
 import style from './index.css';
 
-const beAPI = `${window.location.protocol}//${window.location.host}/api/`
 var client;
 var subscription;
+var routing_key;
 
-d3.select("#keybutton").on("click", start_connection)
+d3.select("#keybutton").on("click", () => {
+    let rk = d3.select("#keyinput").property("value")
+    if (rk !== routing_key && rk !== "") {
+	if (client) {
+	    subscription.unsubscribe()
+	    on_connect()
+	} else {
+	    start_connection()
+	}
+    }
+})
 
 function start_connection() {
-    d3.json(`${beAPI}stomp`)
+    d3.json(`/api/stomp`)
 	.then((res) => {
 	    client = Stomp.client(res.url)
 	    client.debug = null
@@ -18,6 +28,11 @@ function start_connection() {
 		on_connect,
 		(error) => {
 		    console.log(error)
+		},
+		(close_event) => {
+		    d3.select("#is_connected").text("Disconnected")
+		    client = null
+		    routing_key = null
 		})
 	})
 	.catch((err) => {
@@ -26,9 +41,9 @@ function start_connection() {
 }
 
 function on_connect() {
-    let routing_key = d3.select("#keyinput").property("value")
-    d3.select("#is_connected").text(`Connected to ${routing_key}`)
-    d3.json(`${beAPI}binding/${Math.floor(Math.random()*1000000000)}`,
+    routing_key = d3.select("#keyinput").property("value")
+    d3.select("#is_connected").text(`Connected to queue (${routing_key})`)
+    d3.json(`/api/binding/${Math.floor(Math.random()*1000000000)}`,
 	{
 	    'method': 'PUT',
 	    'body': JSON.stringify({'routing_key': routing_key}),
@@ -38,7 +53,6 @@ function on_connect() {
 	    subscription = client
 		.subscribe(`/amq/queue/${res.queue_name}`,
 		    on_message)
-	    console.log("Connected to: " + res.queue_name + " Key: " + routing_key)
 	})
 	.catch((err) => {
 	    console.log(err)
@@ -155,8 +169,8 @@ var slider = d3.sliderHorizontal()
     });
 
 d3.select("#slider").append("svg")
-    .attr("width", width/1.8)
-    .attr("height", 70)
+    .attr("width", width/2 + 70)
+    .attr("height", 50)
     .append("g")
     .attr("transform", "translate(30,10)")
     .call(slider);

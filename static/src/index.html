@@ -5,11 +5,13 @@
 	<title><%= htmlWebpackPlugin.options.title %></title>
     </head>
     <body>
-	<span id="keytext">Key:</span>
-	<input id="keyinput" type="text"></input>
-	<input type="button" id="keybutton" value="Connect">
-	<span id="slider"></span>
-	<span id='is_connected'>Disconnected</span>
+	<div class="header">
+	    <span id="keytext">Key:</span>
+	    <span><input id="keyinput" type="text"></input></span>
+	    <span><input type="button" id="keybutton" value="Connect"></span>
+	    <span id="slider"></span>
+	    <span id='is_connected'>Disconnected</span>
+	</div>
 	<div class="graph"></div>
     </body>
 </html>
