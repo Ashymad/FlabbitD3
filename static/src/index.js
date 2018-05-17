@@ -1,6 +1,5 @@
-import * as d3 from 'd3';
-import * as d3s from 'd3-simple-slider';
-import * as Stomp from '@stomp/stompjs';
+import * as d3 from './d3importer.js';
+import Stomp from '@stomp/stompjs';
 
 import style from './index.css';
 
@@ -144,7 +143,7 @@ function tick(data) {
     }
 }
 
-var slider = d3s.sliderHorizontal()
+var slider = d3.sliderHorizontal()
     .min(0.1)
     .max(2)
     .step(0.1)
