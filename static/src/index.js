@@ -28,6 +28,7 @@ function start_connection() {
 
 function on_connect() {
     let routing_key = d3.select("#keyinput").property("value")
+    d3.select("#is_connected").text(`Connected to ${routing_key}`)
     d3.json(`${beAPI}binding/${Math.floor(Math.random()*1000000000)}`,
 	{
 	    'method': 'PUT',
@@ -155,7 +156,7 @@ var slider = d3s.sliderHorizontal()
     });
 
 d3.select("#slider").append("svg")
-    .attr("width", width/1.5)
+    .attr("width", width/1.8)
     .attr("height", 70)
     .append("g")
     .attr("transform", "translate(30,10)")

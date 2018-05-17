@@ -6,6 +6,10 @@ body {
     vertical-align: 250%;
 }
 
+#is_connected {
+    vertical-align: 250%;
+}
+
 input {
     vertical-align: top;
 }
