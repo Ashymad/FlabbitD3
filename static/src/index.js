@@ -8,32 +8,37 @@ const beAPI = `${window.location.protocol}//${window.location.host}/api/`
 var client;
 var subscription;
 
-d3.json(`${beAPI}stomp`)
-    .then((res) => {
-	client = Stomp.client(res.url)
-	client.debug = null
-	client.connect(res.login, res.passcode,
-	    on_connect,
-	    (error) => {
-		console.log(error)
-	    })
-    })
-    .catch((err) => {
-	console.log(err)
-    })
+d3.select("#keybutton").on("click", start_connection)
+
+function start_connection() {
+    d3.json(`${beAPI}stomp`)
+	.then((res) => {
+	    client = Stomp.client(res.url)
+	    client.debug = null
+	    client.connect(res.login, res.passcode,
+		on_connect,
+		(error) => {
+		    console.log(error)
+		})
+	})
+	.catch((err) => {
+	    console.log(err)
+	})
+}
 
 function on_connect() {
-    d3.json(`${beAPI}binding/${Math.floor(Math.random()*1000000000)}`, {
-	'method': 'PUT',
-	'body': JSON.stringify({'routing_key': 'pc.251756432899072'}),
-	'headers': {'content-type': 'application/json'}})
+    let routing_key = d3.select("#keyinput").property("value")
+    d3.json(`${beAPI}binding/${Math.floor(Math.random()*1000000000)}`,
+	{
+	    'method': 'PUT',
+	    'body': JSON.stringify({'routing_key': routing_key}),
+	    'headers': {'content-type': 'application/json'}
+	})
 	.then((res) => {
 	    subscription = client
 		.subscribe(`/amq/queue/${res.queue_name}`,
 		    on_message)
-	    document.getElementById("title")
-		.textContent = `Reading from: ${res.queue_name}`;
-
+	    console.log("Connected to: " + res.queue_name + " Key: " + routing_key)
 	})
 	.catch((err) => {
 	    console.log(err)
@@ -53,7 +58,7 @@ const limit = 60 * 5,
 var now = new Date(Date.now() - duration)
 
 var width = window.innerWidth - 20,
-    height = window.innerHeight - 50
+    height = window.innerHeight - 100
 
 const domain = 2
 
@@ -150,9 +155,9 @@ var slider = d3s.sliderHorizontal()
     });
 
 d3.select("#slider").append("svg")
-    .attr("width", width)
-    .attr("height", 100)
+    .attr("width", width/1.5)
+    .attr("height", 70)
     .append("g")
-    .attr("transform", "translate(30,30)")
+    .attr("transform", "translate(30,10)")
     .call(slider);
 
